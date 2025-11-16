@@ -227,12 +227,13 @@ function afficherGraphique(){
   const labels = [];
   const data = [];
   const moyenne7j = [];
+  const moyenne3j = [];
+  const moyenne30j = [];
   const consoJours = [];
 
   let joursSansConso = 0;
   let totalAlcool = 0;
   let maxAlcool = 0;
-
   let colorCounts = {vert:0, jaune:0, orange:0, rouge:0};
 
   for(let i=29;i>=0;i--){
@@ -257,27 +258,42 @@ function afficherGraphique(){
     consoJours.push(totalJour);
   }
 
+  // Moyennes 7j, 3j, 30j
   for(let i=0;i<consoJours.length;i++){
+    // Moyenne 7 jours
     if(i<6) moyenne7j.push(null);
     else{
       let sum = 0;
       for(let j=i-6;j<=i;j++) sum += consoJours[j];
       moyenne7j.push(sum/7);
     }
+    // Moyenne 3 jours
+    if(i<2) moyenne3j.push(null);
+    else{
+      let sum=0;
+      for(let j=i-2;j<=i;j++) sum+=consoJours[j];
+      moyenne3j.push(sum/3);
+    }
+    // Moyenne 30 jours
+    if(i<29) moyenne30j.push(null);
+    else{
+      let sum=0;
+      for(let j=i-29;j<=i;j++) sum+=consoJours[j];
+      moyenne30j.push(sum/30);
+    }
   }
 
+  // Mise à jour des stats
   document.getElementById("joursAbstinence").textContent = joursSansConso;
   document.getElementById("jourMax").textContent = maxAlcool.toFixed(1) + " g";
-
   const totalPintes = (totalAlcool / 20.4).toFixed(1);
   document.getElementById("totalAlcool").textContent = totalAlcool.toFixed(1) + " g / " + totalPintes + " pintes";
-
   const moyennePintes = (totalAlcool / 30 / 20.4).toFixed(1);
   document.getElementById("moyennePintes").textContent = moyennePintes;
-
   const ratio = (((30-joursSansConso)/30)*100).toFixed(0) + "%";
   document.getElementById("ratioJours").textContent = ratio;
 
+  // Tendance
   let xVals = [], yVals = [];
   let today = new Date();
   for(let i=29;i>=0;i--){
@@ -297,24 +313,33 @@ function afficherGraphique(){
   let slope = (n*sumXY - sumX*sumY)/(n*sumXX - sumX*sumX);
   document.getElementById("tendanceConso").textContent = (slope>=0? "⬆ ":"⬇ ")+Math.abs(slope).toFixed(1) + " g/j";
 
+  // Graphique principal
   if(consoChart) consoChart.destroy();
   consoChart = new Chart(ctx,{
     type:'line',
     data:{
       labels:labels,
       datasets:[
-        {label:'Alcool pur (g)', data:data, fill:false, borderColor:'#2e86de', backgroundColor:'#2e86de', tension:0.3, pointRadius:5, pointHoverRadius:7},
-        {label:'Moyenne 7 jours', data:moyenne7j, fill:false, borderColor:'#ef4444', backgroundColor:'#ef4444', tension:0.3, pointRadius:3, pointHoverRadius:5}
+        {label:'Alcool pur (g)', data:data, fill:false, borderColor:'#2e86de', backgroundColor:'#2e86de', tension:0.3, pointRadius:5, pointHoverRadius:7, hidden:false},
+        {label:'Moyenne 7 jours', data:moyenne7j, fill:false, borderColor:'#ef4444', backgroundColor:'#ef4444', tension:0.3, pointRadius:3, pointHoverRadius:5, hidden:false},
+        {label:'Moyenne 3 jours', data:moyenne3j, fill:false, borderColor:'#16a34a', backgroundColor:'#16a34a', tension:0.3, pointRadius:3, pointHoverRadius:5, hidden:true},
+        {label:'Moyenne 30 jours', data:moyenne30j, fill:false, borderColor:'#facc15', backgroundColor:'#facc15', tension:0.3, pointRadius:3, pointHoverRadius:5, hidden:true}
       ]
     },
     options:{
       responsive:true,
       maintainAspectRatio:false,
-      scales:{y:{suggestedMin:0,suggestedMax:300,title:{display:true,text:"g d'alcool pur"}},x:{title:{display:true,text:'Jour'}}},
-      plugins:{legend:{display:true,position:'top'}}
+      scales:{
+        y:{suggestedMin:0,suggestedMax:300,title:{display:true,text:"g d'alcool pur"}},
+        x:{title:{display:true,text:'Jour'}}
+      },
+      plugins:{
+        legend:{display:true,position:'top'}
+      }
     }
   });
 
+  // Graphique des couleurs (inchangé)
   if(colorChart) colorChart.destroy();
   colorChart = new Chart(colorCtx,{
     type:'bar',
@@ -333,8 +358,8 @@ function afficherGraphique(){
       scales:{y:{beginAtZero:true,title:{display:true,text:"Nombre de jours"}}}
     }
   });
-
 }
+
 
 afficherGraphique();
 
@@ -344,4 +369,5 @@ afficherGraphique();
 
 </body>
 </html>
+
 
