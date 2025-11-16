@@ -4,10 +4,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Historique des consommations</title>
-
+<!-- FONT -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -167,19 +167,14 @@ tfoot td { font-weight:600; color:var(--text-dark); }
 .day:hover { transform:translateY(-2px); }
 
 .day-number { font-weight:600; font-size:14px; margin-bottom:2px; }
+
 .day-total { font-size:12px; font-weight:500; }
 
 .green { background:#b2fab4; }
 .yellow { background:#fff5b2; }
 .orange { background:#ffc27f; }
 .red { background:#ff7f7f; }
-
-.future-day {
-  background: #fff !important;
-  color: #000;
-  cursor: default;
-  border:1px solid #ccc;
-}
+.disabled { background:#eee; cursor:not-allowed; color:#999; }
 
 .legend {
   display:flex;
@@ -242,10 +237,14 @@ tfoot td { font-weight:600; color:var(--text-dark); }
 @media (max-width:380px){
   .navbar { height:85px; padding:0 8px; }
   .navbar a { font-size:13px; padding:8px 0; }
+}
+
+@media (max-width:380px){
   table { width:95%; }
   .calendar-container { width:95%; padding:12px; }
   .date-bar input, .date-bar button { font-size:14px; padding:8px; }
 }
+
 </style>
 </head>
 
@@ -263,14 +262,14 @@ tfoot td { font-weight:600; color:var(--text-dark); }
     <tr>
       <th>Volume (cl)</th>
       <th>Degré (%)</th>
-      <th>Alcool pur</th>
+      <th>Alcool pur (g)</th>
       <th></th>
     </tr>
   </thead>
   <tbody></tbody>
 </table>
 
-<div class="total" id="total">Total : 0</div>
+<div class="total" id="total">Total : 0 g</div>
 
 <div class="calendar-container">
   <div class="calendar-header">
@@ -289,7 +288,7 @@ tfoot td { font-weight:600; color:var(--text-dark); }
 </div>
 
 <div class="navbar">
-  <a href="index.html" >🏠</a>
+  <a href="index.html">🏠</a>
   <a href="page2.html" class="active">Historique</a>
   <a href="page3.html">Statistiques</a>
   <a href="page4.html">Catalogue</a>
@@ -363,35 +362,32 @@ function changerMois(delta){
 function afficherCalendrier(mois){
   calendar.innerHTML="";
   const [year, month] = mois.split("-").map(Number);
-
   const firstDay = new Date(year, month-1, 1);
   const lastDay = new Date(year, month, 0);
   const joursDansMois = lastDay.getDate();
-
-  const startDayIndex = (firstDay.getDay()+6)%7; // 0 = lundi
+  const startDayIndex = (firstDay.getDay()+6)%7;
   const prevMonthLastDay = new Date(year, month-1, 0).getDate();
 
   for(let i=0;i<42;i++){
     const div = document.createElement("div");
     div.classList.add("day");
-
     let dayNumber,totalJour,dateStr,isCurrentMonth=true;
 
-    if(i<startDayIndex){ // jours du mois précédent
+    if(i<startDayIndex){
       dayNumber = prevMonthLastDay - startDayIndex + i +1;
       div.classList.add("disabled");
       isCurrentMonth=false;
       const prevMonthDate = new Date(year, month-2, dayNumber);
       dateStr = prevMonthDate.toISOString().slice(0,10);
       totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
-    } else if(i>=startDayIndex+joursDansMois){ // jours du mois suivant
+    } else if(i>=startDayIndex+joursDansMois){
       dayNumber = i - (startDayIndex+joursDansMois) +1;
       div.classList.add("disabled");
       isCurrentMonth=false;
       const nextMonthDate = new Date(year, month, dayNumber);
       dateStr = nextMonthDate.toISOString().slice(0,10);
       totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
-    } else { // jours du mois courant
+    } else {
       dayNumber = i - startDayIndex +1;
       dateStr = `${year}-${String(month).padStart(2,'0')}-${String(dayNumber).padStart(2,'0')}`;
       totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
@@ -417,36 +413,12 @@ function afficherCalendrier(mois){
   }
 }
 
-// ======= SWIPE TOUCH SUPPORT =======
-let touchStartX = 0;
-let touchEndX = 0;
-
-function handleSwipe(){
-  const diff = touchEndX - touchStartX;
-  if(Math.abs(diff) > 50){
-    if(diff > 0) changerMois(-1); // swipe droite → mois précédent
-    else changerMois(1);           // swipe gauche → mois suivant
-  }
-}
-
-// Swipe sur le calendrier
-calendar.addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; });
-calendar.addEventListener("touchend", (e) => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); });
-
-// Swipe sur la barre du mois (input+label)
-document.querySelector(".calendar-header").addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; });
-document.querySelector(".calendar-header").addEventListener("touchend", (e) => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); });
-
-// ======= FIN SWIPE =======
-
 window.addEventListener("load",()=>{
   afficherJour();
   afficherCalendrier(currentMonth);
 });
-</script>
 
+</script>
 
 </body>
 </html>
-
-
