@@ -392,7 +392,18 @@ tfoot td { font-weight:600; color:var(--text-dark); }
 const dateJour = document.getElementById("dateJour");
 const btnToday = document.getElementById("btnToday");
 const dateSpan = document.getElementById("dateDuJour");
-const today = new Date().toISOString().slice(0,10);
+  
+function getLocalDateString() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`; // format YYYY-MM-DD
+}
+
+const today = getLocalDateString();
+
+  
 let dateCourante = today;
 dateJour.max = today;
 dateSpan.textContent = today;
@@ -586,3 +597,4 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+
