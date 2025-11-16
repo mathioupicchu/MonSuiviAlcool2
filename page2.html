@@ -380,6 +380,7 @@ function afficherCalendrier(mois){
     let dayNumber,totalJour,dateStr,isCurrentMonth=true;
 
     if(i<startDayIndex){ 
+      // jours du mois précédent → grisés
       dayNumber = prevMonthLastDay - startDayIndex + i +1;
       div.classList.add("disabled");
       isCurrentMonth=false;
@@ -387,26 +388,31 @@ function afficherCalendrier(mois){
       dateStr = prevMonthDate.toISOString().slice(0,10);
       totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
     } else if(i>=startDayIndex+joursDansMois){ 
+      // jours du mois suivant → grisés
       dayNumber = i - (startDayIndex+joursDansMois) +1;
-      div.classList.add("future-day"); 
+      div.classList.add("disabled");
       isCurrentMonth=false;
       const nextMonthDate = new Date(year, month, dayNumber);
       dateStr = nextMonthDate.toISOString().slice(0,10);
-      totalJour = 0;
+      totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
     } else { 
+      // jours du mois courant
       dayNumber = i - startDayIndex +1;
       dateStr = `${year}-${String(month).padStart(2,'0')}-${String(dayNumber).padStart(2,'0')}`;
       totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
     }
 
+    // contour bleu pour aujourd'hui
     if(dateStr === todayStr){
       div.style.border = "2px solid #2e86de";
     }
 
-    if(dateStr > todayStr){
+    // jours futurs du mois courant → blancs
+    if(isCurrentMonth && dateStr > todayStr){
       div.classList.add("future-day");
       div.innerHTML = `<div class="day-number">${dayNumber}</div><div class="day-total"></div>`;
     } else {
+      // couleur selon consommation
       if(totalJour===0) div.classList.add("green");
       else if(totalJour<40) div.classList.add("yellow");
       else if(totalJour<100) div.classList.add("orange");
@@ -427,6 +433,7 @@ function afficherCalendrier(mois){
   }
 }
 
+
 window.addEventListener("load",()=>{
   afficherJour();
   afficherCalendrier(currentMonth);
@@ -435,3 +442,4 @@ window.addEventListener("load",()=>{
 
 </body>
 </html>
+
