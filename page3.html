@@ -216,6 +216,8 @@ h1 {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+document.addEventListener("DOMContentLoaded", function() {
+
 let jours = JSON.parse(localStorage.getItem("jours")) || {};
 const ctx = document.getElementById('consoChart').getContext('2d');
 const colorCtx = document.getElementById('colorChart').getContext('2d');
@@ -242,7 +244,6 @@ function afficherGraphique(){
     let totalJour = 0;
     if(jours[dayStr]) totalJour = jours[dayStr].reduce((sum,c)=>sum+c.alcoolPur,0);
 
-    // Comptage couleurs
     if(totalJour===0) colorCounts.vert++;
     else if(totalJour<=39) colorCounts.jaune++;
     else if(totalJour<=99) colorCounts.orange++;
@@ -265,7 +266,6 @@ function afficherGraphique(){
     }
   }
 
-  // STATISTIQUES
   document.getElementById("joursAbstinence").textContent = joursSansConso;
   document.getElementById("jourMax").textContent = maxAlcool.toFixed(1) + " g";
 
@@ -278,7 +278,6 @@ function afficherGraphique(){
   const ratio = (((30-joursSansConso)/30)*100).toFixed(0) + "%";
   document.getElementById("ratioJours").textContent = ratio;
 
-  // Tendance consommation (régression linéaire sur 30 derniers jours)
   let xVals = [], yVals = [];
   let today = new Date();
   for(let i=29;i>=0;i--){
@@ -298,7 +297,6 @@ function afficherGraphique(){
   let slope = (n*sumXY - sumX*sumY)/(n*sumXX - sumX*sumX);
   document.getElementById("tendanceConso").textContent = (slope>=0? "⬆ ":"⬇ ")+Math.abs(slope).toFixed(1) + " g/j";
 
-  // GRAPHIQUE LINÉAIRE
   if(consoChart) consoChart.destroy();
   consoChart = new Chart(ctx,{
     type:'line',
@@ -317,7 +315,6 @@ function afficherGraphique(){
     }
   });
 
-  // GRAPHIQUE BARRES COULEURS
   if(colorChart) colorChart.destroy();
   colorChart = new Chart(colorCtx,{
     type:'bar',
@@ -336,10 +333,15 @@ function afficherGraphique(){
       scales:{y:{beginAtZero:true,title:{display:true,text:"Nombre de jours"}}}
     }
   });
+
 }
 
+afficherGraphique();
 
+}); // FIN DOMContentLoaded
 </script>
+
 
 </body>
 </html>
+
