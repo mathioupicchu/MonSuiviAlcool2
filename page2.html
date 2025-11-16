@@ -297,6 +297,7 @@ tfoot td { font-weight:600; color:var(--text-dark); }
 </div>
 
 <script>
+// Gestion des dates et du localStorage
 const dateSelector = document.getElementById("dateSelector");
 const btnToday = document.getElementById("btnToday");
 const tableauBody = document.querySelector("#tableau tbody");
@@ -329,7 +330,7 @@ function afficherJour(){
     tableauBody.appendChild(tr);
     total += c.alcoolPur;
   });
-  totalDiv.textContent = "Total : "+total.toFixed(1);
+  totalDiv.textContent = "Total : "+total.toFixed(1)+" g";
 }
 
 tableauBody.addEventListener("click",(e)=>{
@@ -367,11 +368,8 @@ function afficherCalendrier(mois){
   const lastDay = new Date(year, month, 0);
   const joursDansMois = lastDay.getDate();
 
-  const startDayIndex = (firstDay.getDay()+6)%7; 
+  const startDayIndex = (firstDay.getDay()+6)%7; // 0 = lundi
   const prevMonthLastDay = new Date(year, month-1, 0).getDate();
-
-  const todayDate = new Date();
-  const todayStr = todayDate.toISOString().slice(0,10);
 
   for(let i=0;i<42;i++){
     const div = document.createElement("div");
@@ -379,49 +377,35 @@ function afficherCalendrier(mois){
 
     let dayNumber,totalJour,dateStr,isCurrentMonth=true;
 
-    if(i<startDayIndex){ 
-      // jours du mois précédent → grisés
+    if(i<startDayIndex){ // jours du mois précédent
       dayNumber = prevMonthLastDay - startDayIndex + i +1;
       div.classList.add("disabled");
       isCurrentMonth=false;
       const prevMonthDate = new Date(year, month-2, dayNumber);
       dateStr = prevMonthDate.toISOString().slice(0,10);
       totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
-    } else if(i>=startDayIndex+joursDansMois){ 
-      // jours du mois suivant → grisés
+    } else if(i>=startDayIndex+joursDansMois){ // jours du mois suivant
       dayNumber = i - (startDayIndex+joursDansMois) +1;
       div.classList.add("disabled");
       isCurrentMonth=false;
       const nextMonthDate = new Date(year, month, dayNumber);
       dateStr = nextMonthDate.toISOString().slice(0,10);
       totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
-    } else { 
-      // jours du mois courant
+    } else { // jours du mois courant
       dayNumber = i - startDayIndex +1;
       dateStr = `${year}-${String(month).padStart(2,'0')}-${String(dayNumber).padStart(2,'0')}`;
       totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
     }
 
-    // contour bleu pour aujourd'hui
-    if(dateStr === todayStr){
-      div.style.border = "2px solid #2e86de";
-    }
+    if(!isCurrentMonth && totalJour===0) div.classList.add("disabled");
+    else if(totalJour===0) div.classList.add("green");
+    else if(totalJour<40) div.classList.add("yellow");
+    else if(totalJour<100) div.classList.add("orange");
+    else div.classList.add("red");
 
-    // jours futurs du mois courant → blancs
-    if(isCurrentMonth && dateStr > todayStr){
-      div.classList.add("future-day");
-      div.innerHTML = `<div class="day-number">${dayNumber}</div><div class="day-total"></div>`;
-    } else {
-      // couleur selon consommation
-      if(totalJour===0) div.classList.add("green");
-      else if(totalJour<40) div.classList.add("yellow");
-      else if(totalJour<100) div.classList.add("orange");
-      else div.classList.add("red");
+    div.innerHTML = `<div class="day-number">${dayNumber}</div><div class="day-total">${totalJour.toFixed(1)} g</div>`;
 
-      div.innerHTML = `<div class="day-number">${dayNumber}</div><div class="day-total">${totalJour.toFixed(1)}</div>`;
-    }
-
-    if(isCurrentMonth && !div.classList.contains("disabled") && !div.classList.contains("future-day")){
+    if(isCurrentMonth && !div.classList.contains("disabled")){
       div.addEventListener("click",()=>{
         dateCourante = dateStr;
         dateSelector.value = dateStr;
@@ -433,6 +417,27 @@ function afficherCalendrier(mois){
   }
 }
 
+// ======= SWIPE TOUCH SUPPORT =======
+let touchStartX = 0;
+let touchEndX = 0;
+
+function handleSwipe(){
+  const diff = touchEndX - touchStartX;
+  if(Math.abs(diff) > 50){
+    if(diff > 0) changerMois(-1); // swipe droite → mois précédent
+    else changerMois(1);           // swipe gauche → mois suivant
+  }
+}
+
+// Swipe sur le calendrier
+calendar.addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; });
+calendar.addEventListener("touchend", (e) => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); });
+
+// Swipe sur la barre du mois (input+label)
+document.querySelector(".calendar-header").addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; });
+document.querySelector(".calendar-header").addEventListener("touchend", (e) => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); });
+
+// ======= FIN SWIPE =======
 
 window.addEventListener("load",()=>{
   afficherJour();
@@ -440,6 +445,8 @@ window.addEventListener("load",()=>{
 });
 </script>
 
+
 </body>
 </html>
+
 
