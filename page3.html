@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Statistiques des consommations</title>
+
+<!-- FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #3b82f6;
+  --secondary: #6b7280;
+  --bg: #f3f4f6;
+  --card-bg: #ffffff;
+  --danger: #ef4444;
+  --text-dark: #111827;
+  --text-light: #6b7280;
+  --border-radius: 14px;
+  --shadow: 0 6px 20px rgba(0,0,0,0.08);
+  --transition: 0.25s ease;
+}
+
+* { box-sizing: border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-bottom:100px;
+}
+
+h1 {
+  margin: 25px 0 15px 0;
+  color: var(--text-dark);
+  font-weight:600;
+  font-size:1.8rem;
+  text-align:center;
+}
+
+.stats-container {
+  width:90%;
+  max-width:700px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:20px;
+}
+
+.stat-box {
+  flex:1 1 150px;
+  background: var(--card-bg);
+  padding:15px;
+  border-radius:var(--border-radius);
+  box-shadow: var(--shadow);
+  text-align:center;
+}
+
+.stat-box h3 {
+  font-size:14px;
+  color:var(--text-dark);
+  margin-bottom:6px;
+}
+
+.stat-box p {
+  font-size:18px;
+  font-weight:600;
+  color:var(--primary);
+}
+
+.chart-container {
+  width:90%;
+  max-width:700px;
+  height:400px;
+  background: var(--card-bg);
+  padding:20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  margin-bottom:20px;
+}
+
+/* NAVBAR (identique à page 2) */
+.navbar {
+  position: fixed;
+  bottom:15px;      /* plus d’espace du bas */
+  left:10px;
+  right:10px;
+  background:#fff;
+  border-radius:25px; /* coins très arrondis pour style app */
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  height:80px;        /* plus haute pour téléphone */
+  font-weight:600;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15); /* ombre plus visible */
+  padding:0 15px;
+  z-index:1000;
+}
+.navbar a {
+  flex:1;
+  text-decoration:none;
+  color:var(--text-light);
+  font-size:14px;
+  transition: all var(--transition);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:10px 0;
+  border-radius:15px;   /* chaque bouton a un léger arrondi */
+  margin:0 3px;
+  background:#f9fafb;  /* fond clair pour différencier chaque bouton */
+}
+
+.navbar a.active {
+  color:#fff;
+  background:var(--primary); /* bouton actif coloré */
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  transform:translateY(-3px);
+}
+
+.navbar a:hover {
+  background:#e5e7eb;
+  transform:translateY(-2px);
+}
+
+@media (max-width:380px){
+  .navbar {
+    height:85px;  /* un peu plus haute pour petits écrans */
+    padding:0 8px;
+  }
+  .navbar a {
+    font-size:13px;
+    padding:8px 0;
+  }
+}
+
+
+
+/* RESPONSIVE POUR MOBILE */
+@media (max-width:500px){
+  .stats-container { gap:8px; }
+  .stat-box { flex:1 1 45%; padding:10px; }
+  .stat-box h3 { font-size:13px; }
+  .stat-box p { font-size:16px; }
+}
+
+@media (max-width:350px){
+  .stat-box { flex:1 1 100%; padding:8px; }
+  .stat-box h3 { font-size:12px; }
+  .stat-box p { font-size:15px; }
+}
+
+@media (max-width:380px){
+  .chart-container { height:300px; }
+}
+
+
+
+</style>
+</head>
+
+<body>
+
+<h1>Statistiques des 30 derniers jours</h1>
+
+<div class="stats-container">
+  <div class="stat-box" style="background:#d1fae5;">
+    <h3>Jours d'abstinence</h3>
+    <p id="joursAbstinence">0</p>
+  </div>
+  <div class="stat-box" style="background:#fee2e2;">
+    <h3>Journée maximale</h3>
+    <p id="jourMax">0 g</p>
+  </div>
+  <div class="stat-box" style="background:#dbeafe;">
+    <h3>Moyenne pintes/jour</h3>
+    <p id="moyennePintes">0</p>
+  </div>
+  <div class="stat-box" style="background:#ede9fe;">
+    <h3>Total alcool pur</h3>
+    <p id="totalAlcool">0 g / 0 pintes</p>
+  </div>
+  <div class="stat-box" style="background:#ffedd5;">
+    <h3>Ratio jours cons./abstinence</h3>
+    <p id="ratioJours">0%</p>
+  </div>
+  <div class="stat-box" style="background:#e0f7fa;">
+    <h3>Tendance consommation (30 jours)</h3>
+    <p id="tendanceConso">0 g/j</p>
+  </div>
+</div>
+
+<div class="chart-container">
+  <canvas id="consoChart"></canvas>
+</div>
+
+<div class="chart-container">
+  <canvas id="colorChart"></canvas>
+</div>
+
+<div class="navbar">
+  <a href="index.html" >🏠</a>
+  <a href="page2.html">Historique</a>
+  <a href="page3.html"class="active">Statistiques</a>
+  <a href="page4.html">Catalogue</a>
+  <a href="page5.html">⚙️</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let jours = JSON.parse(localStorage.getItem("jours")) || {};
+const ctx = document.getElementById('consoChart').getContext('2d');
+const colorCtx = document.getElementById('colorChart').getContext('2d');
+let consoChart, colorChart;
+
+function afficherGraphique(){
+  const labels = [];
+  const data = [];
+  const moyenne7j = [];
+  const consoJours = [];
+
+  let joursSansConso = 0;
+  let totalAlcool = 0;
+  let maxAlcool = 0;
+
+  let colorCounts = {vert:0, jaune:0, orange:0, rouge:0};
+
+  for(let i=29;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dayStr = d.toISOString().slice(0,10);
+    labels.push(dayStr.slice(5));
+
+    let totalJour = 0;
+    if(jours[dayStr]) totalJour = jours[dayStr].reduce((sum,c)=>sum+c.alcoolPur,0);
+
+    // Comptage couleurs
+    if(totalJour===0) colorCounts.vert++;
+    else if(totalJour<=39) colorCounts.jaune++;
+    else if(totalJour<=99) colorCounts.orange++;
+    else colorCounts.rouge++;
+
+    if(totalJour === 0) joursSansConso++;
+    if(totalJour > maxAlcool) maxAlcool = totalJour;
+
+    totalAlcool += totalJour;
+    data.push(totalJour);
+    consoJours.push(totalJour);
+  }
+
+  for(let i=0;i<consoJours.length;i++){
+    if(i<6) moyenne7j.push(null);
+    else{
+      let sum = 0;
+      for(let j=i-6;j<=i;j++) sum += consoJours[j];
+      moyenne7j.push(sum/7);
+    }
+  }
+
+  // STATISTIQUES
+  document.getElementById("joursAbstinence").textContent = joursSansConso;
+  document.getElementById("jourMax").textContent = maxAlcool.toFixed(1) + " g";
+
+  const totalPintes = (totalAlcool / 20.4).toFixed(1);
+  document.getElementById("totalAlcool").textContent = totalAlcool.toFixed(1) + " g / " + totalPintes + " pintes";
+
+  const moyennePintes = (totalAlcool / 30 / 20.4).toFixed(1);
+  document.getElementById("moyennePintes").textContent = moyennePintes;
+
+  const ratio = (((30-joursSansConso)/30)*100).toFixed(0) + "%";
+  document.getElementById("ratioJours").textContent = ratio;
+
+  // Tendance consommation (régression linéaire sur 30 derniers jours)
+  let xVals = [], yVals = [];
+  let today = new Date();
+  for(let i=29;i>=0;i--){
+    let d = new Date();
+    d.setDate(today.getDate()-i);
+    let dayStr = d.toISOString().slice(0,10);
+    let totalJour = 0;
+    if(jours[dayStr]) totalJour = jours[dayStr].reduce((sum,c)=>sum+c.alcoolPur,0);
+    xVals.push(i);
+    yVals.push(totalJour);
+  }
+  let n = xVals.length;
+  let sumX = xVals.reduce((a,b)=>a+b,0);
+  let sumY = yVals.reduce((a,b)=>a+b,0);
+  let sumXY = xVals.reduce((a,b,i)=>a+b*yVals[i],0);
+  let sumXX = xVals.reduce((a,b)=>a+b*b,0);
+  let slope = (n*sumXY - sumX*sumY)/(n*sumXX - sumX*sumX);
+  document.getElementById("tendanceConso").textContent = (slope>=0? "⬆ ":"⬇ ")+Math.abs(slope).toFixed(1) + " g/j";
+
+  // GRAPHIQUE LINÉAIRE
+  if(consoChart) consoChart.destroy();
+  consoChart = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:labels,
+      datasets:[
+        {label:'Alcool pur (g)', data:data, fill:false, borderColor:'#2e86de', backgroundColor:'#2e86de', tension:0.3, pointRadius:5, pointHoverRadius:7},
+        {label:'Moyenne 7 jours', data:moyenne7j, fill:false, borderColor:'#ef4444', backgroundColor:'#ef4444', tension:0.3, pointRadius:3, pointHoverRadius:5}
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{y:{suggestedMin:0,suggestedMax:300,title:{display:true,text:"g d'alcool pur"}},x:{title:{display:true,text:'Jour'}}},
+      plugins:{legend:{display:true,position:'top'}}
+    }
+  });
+
+  // GRAPHIQUE BARRES COULEURS
+  if(colorChart) colorChart.destroy();
+  colorChart = new Chart(colorCtx,{
+    type:'bar',
+    data:{
+      labels:['0 g (vert)','1-39 g (jaune)','40-99 g (orange)','≥100 g (rouge)'],
+      datasets:[{
+        label:'Nombre de jours',
+        data:[colorCounts.vert,colorCounts.jaune,colorCounts.orange,colorCounts.rouge],
+        backgroundColor:['#B2FAB4','#FFF5B2','#FFC27F','#FF7F7F']
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true,title:{display:true,text:"Nombre de jours"}}}
+    }
+  });
+}
+
+
+</script>
+
+</body>
+</html>

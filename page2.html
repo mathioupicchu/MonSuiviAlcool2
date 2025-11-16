@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Historique des consommations</title>
+
+<!-- FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #3b82f6;
+  --secondary: #6b7280;
+  --bg: #f3f4f6;
+  --card-bg: #ffffff;
+  --danger: #ef4444;
+  --text-dark: #111827;
+  --text-light: #6b7280;
+  --border-radius: 14px;
+  --shadow: 0 6px 20px rgba(0,0,0,0.08);
+  --transition: 0.25s ease;
+}
+
+* { box-sizing: border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-bottom:100px;
+}
+
+h1 {
+  margin: 25px 0 15px 0;
+  color: var(--text-dark);
+  font-weight:600;
+  font-size:1.8rem;
+  text-align:center;
+}
+
+/* DATE BAR */
+.date-bar {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+
+.date-bar input {
+  padding:10px;
+  font-size:16px;
+  border-radius:var(--border-radius);
+  border:1px solid #d1d5db;
+  background:#fff;
+  text-align:center;
+  transition:border-color var(--transition);
+}
+
+.date-bar input:focus { border-color: var(--primary); outline:none; }
+
+.date-bar button {
+  padding:10px 16px;
+  font-size:16px;
+  border:none;
+  border-radius:var(--border-radius);
+  background:var(--primary);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  transition: all var(--transition);
+}
+
+.date-bar button:hover { background:#2563eb; transform:translateY(-2px); }
+
+/* TABLEAU */
+table {
+  width:90%;
+  max-width:400px;
+  border-collapse:collapse;
+  margin-bottom:20px;
+  font-size:0.95rem;
+}
+
+th, td {
+  border-bottom:1px solid #e5e7eb;
+  padding:6px 8px;
+  text-align:center;
+}
+
+tfoot td { font-weight:600; color:var(--text-dark); }
+
+.delete {
+  color: var(--danger);
+  cursor:pointer;
+  font-weight:bold;
+  transition: transform var(--transition);
+}
+
+.delete:hover { transform:scale(1.2); }
+
+/* TOTAL */
+.total {
+  font-weight:600;
+  font-size:1rem;
+  margin-bottom:25px;
+  color:var(--text-dark);
+}
+
+/* CALENDAR */
+.calendar-container {
+  width:90%;
+  max-width:600px;
+  background: var(--card-bg);
+  padding:15px;
+  border-radius:var(--border-radius);
+  box-shadow: var(--shadow);
+  margin-bottom:20px;
+}
+
+.calendar-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+
+.calendar-header button {
+  background: var(--primary);
+  color:#fff;
+  border:none;
+  padding:6px 12px;
+  border-radius:var(--border-radius);
+  font-weight:600;
+  cursor:pointer;
+  transition: all var(--transition);
+}
+
+.calendar-header button:hover { background:#2563eb; }
+
+.calendar { 
+  display:grid; 
+  grid-template-columns:repeat(7,1fr); 
+  gap:4px; 
+}
+
+.day {
+  border:1px solid #ccc;
+  min-height:60px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items:center;
+  font-size:12px;
+  border-radius:8px;
+  cursor:pointer;
+  padding:4px;
+  transition: transform var(--transition);
+}
+
+.day:hover { transform:translateY(-2px); }
+
+.day-number { font-weight:600; font-size:14px; margin-bottom:2px; }
+
+.day-total { font-size:12px; font-weight:500; }
+
+.green { background:#b2fab4; }
+.yellow { background:#fff5b2; }
+.orange { background:#ffc27f; }
+.red { background:#ff7f7f; }
+.disabled { background:#eee; cursor:not-allowed; color:#999; }
+
+.legend {
+  display:flex;
+  justify-content:space-around;
+  width:90%;
+  max-width:600px;
+  margin-bottom:40px;
+  font-size:14px;
+}
+
+.legend div { display:flex; align-items:center; gap:5px; }
+.legend span { width:20px; height:20px; border-radius:4px; display:inline-block; }
+
+/* NAVBAR */
+.navbar {
+  position: fixed;
+  bottom:15px;      /* plus d’espace du bas */
+  left:10px;
+  right:10px;
+  background:#fff;
+  border-radius:25px; /* coins très arrondis pour style app */
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  height:80px;        /* plus haute pour téléphone */
+  font-weight:600;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15); /* ombre plus visible */
+  padding:0 15px;
+  z-index:1000;
+}
+
+.navbar a {
+  flex:1;
+  text-decoration:none;
+  color:var(--text-light);
+  font-size:14px;
+  transition: all var(--transition);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:10px 0;
+  border-radius:15px;   /* chaque bouton a un léger arrondi */
+  margin:0 3px;
+  background:#f9fafb;  /* fond clair pour différencier chaque bouton */
+}
+
+.navbar a.active {
+  color:#fff;
+  background:var(--primary); /* bouton actif coloré */
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  transform:translateY(-3px);
+}
+
+.navbar a:hover {
+  background:#e5e7eb;
+  transform:translateY(-2px);
+}
+
+@media (max-width:380px){
+  .navbar {
+    height:85px;  /* un peu plus haute pour petits écrans */
+    padding:0 8px;
+  }
+  .navbar a {
+    font-size:13px;
+    padding:8px 0;
+  }
+}
+
+
+@media (max-width:380px){
+  table { width:95%; }
+  .calendar-container { width:95%; padding:12px; }
+  .date-bar input, .date-bar button { font-size:14px; padding:8px; }
+}
+
+
+
+</style>
+</head>
+
+<body>
+
+<h1>Historique des consommations</h1>
+
+<div class="date-bar">
+  <input type="date" id="dateSelector">
+  <button id="btnToday">Aujourd'hui</button>
+</div>
+
+<table id="tableau">
+  <thead>
+    <tr>
+      <th>Volume (cl)</th>
+      <th>Degré (%)</th>
+      <th>Alcool pur (g)</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<div class="total" id="total">Total : 0 g</div>
+
+<div class="calendar-container">
+  <div class="calendar-header">
+    <button id="prevMonth">&lt;</button>
+    <label>Mois : <input type="month" id="monthSelector"></label>
+    <button id="nextMonth">&gt;</button>
+  </div>
+  <div class="calendar" id="calendar"></div>
+</div>
+
+<div class="legend">
+  <div><span class="green"></span> 0 g</div>
+  <div><span class="yellow"></span> 1-39 g</div>
+  <div><span class="orange"></span> 40-99 g</div>
+  <div><span class="red"></span> ≥100 g</div>
+</div>
+
+<div class="navbar">
+  <a href="index.html" >🏠</a>
+  <a href="page2.html"class="active">Historique</a>
+  <a href="page3.html">Statistiques</a>
+  <a href="page4.html">Catalogue</a>
+  <a href="page5.html">⚙️</a>
+</div>
+
+<script>
+// Gestion des dates et du localStorage
+const dateSelector = document.getElementById("dateSelector");
+const btnToday = document.getElementById("btnToday");
+const tableauBody = document.querySelector("#tableau tbody");
+const totalDiv = document.getElementById("total");
+const monthSelector = document.getElementById("monthSelector");
+const calendar = document.getElementById("calendar");
+const prevMonthBtn = document.getElementById("prevMonth");
+const nextMonthBtn = document.getElementById("nextMonth");
+
+let jours = JSON.parse(localStorage.getItem("jours")) || {};
+const today = new Date().toISOString().slice(0,10);
+const currentMonth = today.slice(0,7);
+
+dateSelector.max = today;
+monthSelector.max = currentMonth;
+
+let dateCourante = today;
+dateSelector.value = today;
+monthSelector.value = currentMonth;
+
+function afficherJour(){
+  if(!jours[dateCourante]) jours[dateCourante] = [];
+  localStorage.setItem("jours", JSON.stringify(jours));
+
+  tableauBody.innerHTML="";
+  let total=0;
+  jours[dateCourante].forEach((c,i)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${c.volume}</td><td>${c.degree}</td><td>${c.alcoolPur.toFixed(1)}</td><td><span class="delete" data-index="${i}">✖</span></td>`;
+    tableauBody.appendChild(tr);
+    total += c.alcoolPur;
+  });
+  totalDiv.textContent = "Total : "+total.toFixed(1)+" g";
+}
+
+tableauBody.addEventListener("click",(e)=>{
+  if(e.target.classList.contains("delete")){
+    const index = e.target.dataset.index;
+    jours[dateCourante].splice(index,1);
+    localStorage.setItem("jours",JSON.stringify(jours));
+    afficherJour();
+    afficherCalendrier(monthSelector.value);
+  }
+});
+
+dateSelector.addEventListener("change",()=>{ dateCourante = dateSelector.value; afficherJour(); });
+btnToday.addEventListener("click",()=>{ dateCourante = today; dateSelector.value = today; afficherJour(); });
+
+monthSelector.addEventListener("change",()=>afficherCalendrier(monthSelector.value));
+prevMonthBtn.addEventListener("click",()=>changerMois(-1));
+nextMonthBtn.addEventListener("click",()=>changerMois(1));
+
+function changerMois(delta){
+  let [year, month] = monthSelector.value.split("-").map(Number);
+  month += delta;
+  if(month <1){ month=12; year--;}
+  if(month>12){ month=1; year++;}
+  const newMonth = `${year}-${String(month).padStart(2,'0')}`;
+  monthSelector.value = newMonth;
+  afficherCalendrier(newMonth);
+}
+
+function afficherCalendrier(mois){
+  calendar.innerHTML="";
+  const [year, month] = mois.split("-").map(Number);
+
+  const firstDay = new Date(year, month-1, 1);
+  const lastDay = new Date(year, month, 0);
+  const joursDansMois = lastDay.getDate();
+
+  const startDayIndex = (firstDay.getDay()+6)%7; // 0 = lundi
+  const prevMonthLastDay = new Date(year, month-1, 0).getDate();
+
+  for(let i=0;i<42;i++){
+    const div = document.createElement("div");
+    div.classList.add("day");
+
+    let dayNumber,totalJour,dateStr,isCurrentMonth=true;
+
+    if(i<startDayIndex){ // jours du mois précédent
+      dayNumber = prevMonthLastDay - startDayIndex + i +1;
+      div.classList.add("disabled");
+      isCurrentMonth=false;
+      const prevMonthDate = new Date(year, month-2, dayNumber);
+      dateStr = prevMonthDate.toISOString().slice(0,10);
+      totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
+    } else if(i>=startDayIndex+joursDansMois){ // jours du mois suivant
+      dayNumber = i - (startDayIndex+joursDansMois) +1;
+      div.classList.add("disabled");
+      isCurrentMonth=false;
+      const nextMonthDate = new Date(year, month, dayNumber);
+      dateStr = nextMonthDate.toISOString().slice(0,10);
+      totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
+    } else { // jours du mois courant
+      dayNumber = i - startDayIndex +1;
+      dateStr = `${year}-${String(month).padStart(2,'0')}-${String(dayNumber).padStart(2,'0')}`;
+      totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
+    }
+
+    if(!isCurrentMonth && totalJour===0) div.classList.add("disabled");
+    else if(totalJour===0) div.classList.add("green");
+    else if(totalJour<40) div.classList.add("yellow");
+    else if(totalJour<100) div.classList.add("orange");
+    else div.classList.add("red");
+
+    div.innerHTML = `<div class="day-number">${dayNumber}</div><div class="day-total">${totalJour.toFixed(1)} g</div>`;
+
+    if(isCurrentMonth && !div.classList.contains("disabled")){
+      div.addEventListener("click",()=>{
+        dateCourante = dateStr;
+        dateSelector.value = dateStr;
+        afficherJour();
+      });
+    }
+
+    calendar.appendChild(div);
+  }
+}
+
+window.addEventListener("load",()=>{
+  afficherJour();
+  afficherCalendrier(currentMonth);
+});
+
+</script>
+
+</body>
+</html>

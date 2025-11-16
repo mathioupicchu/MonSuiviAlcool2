@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gestion des données</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --primary: #3b82f6;
+  --secondary: #6b7280;
+  --bg: #f3f4f6;
+  --card-bg: #ffffff;
+  --danger: #ef4444;
+  --text-dark: #111827;
+  --text-light: #6b7280;
+  --border-radius: 14px;
+  --shadow: 0 6px 20px rgba(0,0,0,0.08);
+  --transition: 0.25s ease;
+}
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f7f7f7;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100vh;
+    margin:0;
+    padding-top:40px;
+    padding-bottom:100px;
+  }
+
+  h1 {
+    color:#333;
+    margin-bottom:30px;
+    text-align:center;
+  }
+
+  .container {
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    width:90%;
+    max-width:500px;
+    text-align:center;
+    box-sizing:border-box;
+  }
+
+  button {
+    padding:10px 20px;
+    font-size:16px;
+    border:none;
+    border-radius:8px;
+    background-color:#2e86de;
+    color:white;
+    cursor:pointer;
+    transition:background 0.2s;
+    margin:10px;
+  }
+
+  button:hover { background-color:#1b4f91; }
+
+  #resetBtn { background-color:#dc3545; }
+  #resetBtn:hover { background-color:#a71d2a; }
+
+  input[type="file"] { display:none; }
+
+  /* Navbar identique aux autres pages */
+.navbar {
+  position: fixed;
+  bottom:15px;      /* plus d’espace du bas */
+  left:10px;
+  right:10px;
+  background:#fff;
+  border-radius:25px; /* coins très arrondis pour style app */
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  height:80px;        /* plus haute pour téléphone */
+  font-weight:600;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15); /* ombre plus visible */
+  padding:0 15px;
+  z-index:1000;
+}
+
+.navbar a {
+  flex:1;
+  text-decoration:none;
+  color:var(--text-light);
+  font-size:14px;
+  transition: all var(--transition);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:10px 0;
+  border-radius:15px;   /* chaque bouton a un léger arrondi */
+  margin:0 3px;
+  background:#f9fafb;  /* fond clair pour différencier chaque bouton */
+}
+
+.navbar a.active {
+  color:#fff;
+  background:var(--primary); /* bouton actif coloré */
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  transform:translateY(-3px);
+}
+
+.navbar a:hover {
+  background:#e5e7eb !important;
+  transform:translateY(-2px) !important;
+}
+
+@media (max-width:380px){
+  .navbar {
+    height:85px;  /* un peu plus haute pour petits écrans */
+    padding:0 8px;
+  }
+  .navbar a {
+    font-size:13px;
+    padding:8px 0;
+  }
+}
+
+
+
+  .version {
+    margin-top:20px;
+    font-size:14px;
+    color:#888;
+  }
+
+  @media (max-width:380px){
+    .container { width:95%; padding:12px; }
+    button { font-size:14px; padding:8px 16px; margin:6px; }
+  }
+
+
+
+</style>
+</head>
+<body>
+
+<h1>Gestion des données</h1>
+
+<div class="container">
+  <p>Tu peux ici exporter, importer ou réinitialiser tes données de consommation et du catalogue.</p>
+
+  <button id="exportBtn">📤 Exporter les données</button>
+  
+  <label for="importFile" class="importLabel">
+    <button id="importBtn">📥 Importer les données</button>
+  </label>
+  <input type="file" id="importFile" accept=".json">
+
+  <button id="resetBtn">🗑️ Réinitialiser toutes les données</button>
+
+  <div class="version">Version 3.7</div>
+</div>
+
+<div class="navbar">
+  <a href="index.html" >🏠</a>
+  <a href="page2.html">Historique</a>
+  <a href="page3.html">Statistiques</a>
+  <a href="page4.html">Catalogue</a>
+  <a href="page5.html"class="active">⚙️</a>
+</div>
+
+<script>
+const exportBtn = document.getElementById("exportBtn");
+const importFile = document.getElementById("importFile");
+const resetBtn = document.getElementById("resetBtn");
+
+// === EXPORTER ===
+exportBtn.addEventListener("click", () => {
+  try {
+    const jours = localStorage.getItem("jours") || "{}";
+    const boissons = localStorage.getItem("boissons") || "[]";
+
+    const data = { jours: JSON.parse(jours), boissons: JSON.parse(boissons) };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "donnees_conso.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    alert("✅ Export réussi ! Le fichier 'donnees_conso.json' a été téléchargé.");
+  } catch (err) {
+    console.error("Erreur d’export :", err);
+    alert("❌ Une erreur est survenue pendant l’export.");
+  }
+});
+
+// === IMPORTER ===
+document.getElementById("importBtn").addEventListener("click", () => { importFile.click(); });
+
+importFile.addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      let jours = {};
+      let boissons = [];
+
+      if (data.jours && data.boissons !== undefined) {
+        jours = data.jours;
+        boissons = data.boissons;
+      } else {
+        jours = data;
+      }
+
+      localStorage.setItem("jours", JSON.stringify(jours));
+      localStorage.setItem("boissons", JSON.stringify(boissons));
+
+      alert("✅ Données importées avec succès !");
+    } catch (err) {
+      console.error("Erreur d’import :", err);
+      alert("❌ Fichier invalide ou corrompu.");
+    }
+  };
+  reader.readAsText(file);
+});
+
+// === RÉINITIALISER ===
+resetBtn.addEventListener("click", () => {
+  if (confirm("⚠️ Es-tu sûr de vouloir tout réinitialiser ?\nCette action est irréversible.")) {
+    localStorage.removeItem("jours");
+    localStorage.removeItem("boissons");
+    alert("🗑️ Toutes les données ont été supprimées !");
+  }
+});
+
+</script>
+
+</body>
+</html>

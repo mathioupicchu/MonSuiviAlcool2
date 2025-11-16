@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catalogue des boissons - Page 4</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+
+:root {
+  --primary: #3b82f6;
+  --secondary: #6b7280;
+  --bg: #f3f4f6;
+  --card-bg: #ffffff;
+  --danger: #ef4444;
+  --text-dark: #111827;
+  --text-light: #6b7280;
+  --border-radius: 14px;
+  --shadow: 0 6px 20px rgba(0,0,0,0.08);
+  --transition: 0.25s ease;
+}
+
+    body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; margin:0; padding-bottom:100px; }
+    h1 { text-align:center; color:#333; margin-top:20px; }
+
+    /* Conteneurs */
+    .container, .favoris-container, .ajout-bar, .search-bar {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto 20px auto;
+      border-radius:12px;
+      padding:15px;
+      background:white;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .favoris-container { background:#fff7d6; border:1px solid #f3d46b; }
+
+    .section-titre { font-weight:bold; color:#444; margin:10px 0 5px; font-size:15px; border-bottom:1px solid #eee; padding-bottom:3px; }
+
+    /* Boissons */
+    .boisson { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:6px 0; font-size:14px; }
+    .boisson-info { flex-grow:1; display:flex; flex-direction:column; justify-content:center; min-width:0; }
+    .boisson-info strong { margin-right:6px; font-weight:600; color:#333; }
+    .boisson small { color:#777; }
+    .boisson-actions { display:flex; align-items:center; flex-shrink:0; }
+    .boisson-actions button { background:none; border:none; cursor:pointer; font-size:16px; margin-left:6px; color:#555; }
+    .boisson-actions button:hover { color:#000; }
+    .etoile { font-size:18px; cursor:pointer; color:#bbb; margin-right:6px; transition: color 0.2s; }
+    .etoile.active { color:gold; }
+
+    /* Barre d'ajout */
+    .ajout-bar { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:15px; }
+    .ajout-bar input { flex:1; padding:6px 8px; border-radius:6px; border:1px solid #ccc; font-size:13px; min-width:0; box-sizing:border-box; }
+    .ajout-bar button { background-color:#007bff; color:white; border:none; border-radius:6px; padding:6px 10px; cursor:pointer; font-size:18px; line-height:1; flex-shrink:0; }
+    .ajout-bar button:hover { background-color:#0056b3; }
+
+    .alcool-pur { text-align:right; font-size:13px; color:#555; margin-bottom:8px; }
+
+    /* Barre de recherche */
+    .search-bar { margin:10px 0 15px; }
+    #searchInput { width:100%; padding:8px 10px; border-radius:6px; border:1px solid #ccc; font-size:14px; box-sizing:border-box; }
+
+    .message-vide { text-align:center; color:#777; font-size:14px; margin:10px 0; }
+
+    /* Navbar identique aux autres pages */
+ .navbar {
+  position: fixed;
+  bottom:15px;      /* plus d’espace du bas */
+  left:10px;
+  right:10px;
+  background:#fff;
+  border-radius:25px; /* coins très arrondis pour style app */
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  height:80px;        /* plus haute pour téléphone */
+  font-weight:600;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15); /* ombre plus visible */
+  padding:0 15px;
+  z-index:1000;
+}
+
+.navbar a {
+  flex:1;
+  text-decoration:none;
+  color:var(--text-light);
+  font-size:14px;
+  transition: all var(--transition);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:10px 0;
+  border-radius:15px;   /* chaque bouton a un léger arrondi */
+  margin:0 3px;
+  background:#f9fafb;  /* fond clair pour différencier chaque bouton */
+}
+
+.navbar a.active {
+  color:#fff;
+  background:var(--primary); /* bouton actif coloré */
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  transform:translateY(-3px);
+}
+
+.navbar a:hover {
+  background:#e5e7eb !important;
+  transform:translateY(-2px) !important;
+}
+
+@media (max-width:380px){
+  .navbar {
+    height:85px;  /* un peu plus haute pour petits écrans */
+    padding:0 8px;
+  }
+  .navbar a {
+    font-size:13px;
+    padding:8px 0;
+  }
+}
+
+
+
+    @media (max-width:380px){
+      .container, .favoris-container, .ajout-bar, .search-bar { width:95%; padding:12px; }
+      .ajout-bar input, #searchInput { font-size:14px; padding:8px; }
+    }
+
+
+
+
+
+  </style>
+</head>
+<body>
+
+<h1>Catalogue des boissons</h1>
+
+<div class="container favoris-container">
+  <div class="section-titre">⭐ Favoris</div>
+  <div id="favoris"></div>
+</div>
+
+<div class="container">
+  <div class="section-titre">📘 Catalogue complet</div>
+
+  <!-- Ajout manuel -->
+  <div class="ajout-bar">
+    <input type="text" id="nomInput" placeholder="Nom de la boisson" />
+    <input type="number" id="volumeInput" placeholder="Volume (cL)" step="0.1" />
+    <input type="number" id="degreInput" placeholder="Degré (%)" step="0.1" />
+    <button id="addBoissonBtn">➕</button>
+  </div>
+
+  <div id="alcoolPurAffichage" class="alcool-pur">Alcool pur : 0 g</div>
+
+  <!-- Barre de recherche -->
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Rechercher une boisson..." />
+  </div>
+
+  <div id="catalogue"></div>
+</div>
+
+<div class="navbar">
+  <a href="index.html" >🏠</a>
+  <a href="page2.html">Historique</a>
+  <a href="page3.html">Statistiques</a>
+  <a href="page4.html"class="active">Catalogue</a>
+  <a href="page5.html">⚙️</a>
+</div>
+
+<script>
+let boissons = [];
+try {
+  const data = localStorage.getItem("boissons");
+  if (data) boissons = JSON.parse(data);
+} catch(e) {
+  console.error("Erreur lors du chargement des boissons :", e);
+  boissons = [];
+}
+
+const nomInput = document.getElementById("nomInput");
+const volumeInput = document.getElementById("volumeInput");
+const degreInput = document.getElementById("degreInput");
+const alcoolPurAffichage = document.getElementById("alcoolPurAffichage");
+const searchInput = document.getElementById("searchInput");
+
+function calculerAlcoolPur() {
+  const volume = parseFloat(volumeInput.value);
+  const degre = parseFloat(degreInput.value);
+  if (!isNaN(volume) && !isNaN(degre)) {
+    const alcoolPur = volume * (degre / 100) * 0.8 * 10;
+    alcoolPurAffichage.textContent = `Alcool pur : ${alcoolPur.toFixed(1)} g`;
+  } else {
+    alcoolPurAffichage.textContent = "Alcool pur : 0 g";
+  }
+}
+
+function afficherCatalogue(filtre="") {
+  const catalogueDiv = document.getElementById("catalogue");
+  const favorisDiv = document.getElementById("favoris");
+  catalogueDiv.innerHTML = "";
+  favorisDiv.innerHTML = "";
+
+  const favoris = boissons.filter(b => b.favori);
+  if (favoris.length === 0) {
+    favorisDiv.innerHTML = "<p class='message-vide'>Aucun favori pour le moment</p>";
+  } else {
+    favoris.sort((a,b)=>a.nom.localeCompare(b.nom));
+    favoris.forEach(b => creerLigneBoisson(b, b.id, favorisDiv));
+  }
+
+  const toutes = boissons.filter(b => b.nom.toLowerCase().includes(filtre.toLowerCase()));
+  if (toutes.length === 0) {
+    catalogueDiv.innerHTML = "<p class='message-vide'>Aucune boisson enregistrée</p>";
+  } else {
+    toutes.sort((a,b)=>a.nom.localeCompare(b.nom));
+    toutes.forEach(b => creerLigneBoisson(b, b.id, catalogueDiv));
+  }
+}
+
+function creerLigneBoisson(b, id, parent) {
+  const div = document.createElement("div");
+  div.className = "boisson";
+  div.innerHTML = `
+    <span class="etoile ${b.favori ? "active" : ""}" onclick="toggleFavori(${id})">★</span>
+    <div class="boisson-info">
+      <strong>${b.nom}</strong>
+      <small>${b.volume} cL — ${b.degre}% — ${b.alcoolPur.toFixed(1)} g</small>
+    </div>
+    <div class="boisson-actions">
+      <button onclick="modifierBoisson(${id})">✏️</button>
+      <button onclick="supprimerBoisson(${id})">🗑️</button>
+    </div>
+  `;
+  parent.appendChild(div);
+}
+
+function ajouterBoisson() {
+  const nom = nomInput.value.trim();
+  const volume = parseFloat(volumeInput.value);
+  const degre = parseFloat(degreInput.value);
+  if (!nom || isNaN(volume) || isNaN(degre)) return alert("Veuillez remplir tous les champs correctement.");
+
+  const alcoolPur = volume * (degre / 100) * 0.8 * 10;
+  const id = Date.now();
+  boissons.push({ id, nom, volume, degre, alcoolPur, favori:false });
+  localStorage.setItem("boissons", JSON.stringify(boissons));
+
+  nomInput.value = volumeInput.value = degreInput.value = "";
+  calculerAlcoolPur();
+  afficherCatalogue(searchInput.value);
+}
+
+function findIndexById(id) { return boissons.findIndex(b => b.id === id); }
+
+function toggleFavori(id) {
+  const index = findIndexById(id);
+  if (index === -1) return;
+  boissons[index].favori = !boissons[index].favori;
+  localStorage.setItem("boissons", JSON.stringify(boissons));
+  afficherCatalogue(searchInput.value);
+}
+
+function modifierBoisson(id) {
+  const index = findIndexById(id);
+  if (index === -1) return;
+  const b = boissons[index];
+  const nom = prompt("Nom :", b.nom);
+  const volume = parseFloat(prompt("Volume (cL) :", b.volume));
+  const degre = parseFloat(prompt("Degré (%) :", b.degre));
+  if (!nom || isNaN(volume) || isNaN(degre)) return alert("Valeur invalide.");
+
+  const alcoolPur = volume * (degre / 100) * 0.8 * 10;
+  boissons[index] = { ...b, nom, volume, degre, alcoolPur };
+  localStorage.setItem("boissons", JSON.stringify(boissons));
+  afficherCatalogue(searchInput.value);
+}
+
+function supprimerBoisson(id) {
+  const index = findIndexById(id);
+  if (index === -1) return;
+  if (!confirm("Supprimer cette boisson ?")) return;
+  boissons.splice(index,1);
+  localStorage.setItem("boissons", JSON.stringify(boissons));
+  afficherCatalogue(searchInput.value);
+}
+
+volumeInput.addEventListener("input", calculerAlcoolPur);
+degreInput.addEventListener("input", calculerAlcoolPur);
+document.getElementById("addBoissonBtn").addEventListener("click", ajouterBoisson);
+searchInput.addEventListener("input", () => afficherCatalogue(searchInput.value));
+
+afficherCatalogue();
+
+</script>
+
+</body>
+</html>

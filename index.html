@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Calculateur d'alcool pur</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4a90e2">
+
+<!-- FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #3b82f6;
+  --secondary: #6b7280;
+  --bg: #f3f4f6;
+  --card-bg: #ffffff;
+  --danger: #ef4444;
+  --text-dark: #111827;
+  --text-light: #6b7280;
+  --border-radius: 14px;
+  --shadow: 0 6px 20px rgba(0,0,0,0.08);
+  --transition: 0.25s ease;
+}
+
+* { box-sizing: border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-bottom: 100px;
+}
+
+/* TITRE */
+h1 {
+  margin: 25px 0 15px 0;
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+/* DATE BAR */
+.date-bar {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+
+.date-bar input {
+  padding:10px;
+  font-size:16px;
+  border-radius:var(--border-radius);
+  border:1px solid #d1d5db;
+  background:#fff;
+  text-align:center;
+  transition:border-color var(--transition);
+}
+
+.date-bar input:focus { border-color: var(--primary); outline:none; }
+
+.date-bar button {
+  padding:10px 16px;
+  font-size:16px;
+  border:none;
+  border-radius:var(--border-radius);
+  background:var(--primary);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  transition: all var(--transition);
+}
+
+.date-bar button:hover { background:#2563eb; transform:translateY(-2px); }
+
+/* SWITCH MODE */
+.switch-mode {
+  display:flex;
+  justify-content:center;
+  margin-bottom:20px;
+  gap:10px;
+}
+
+.switch-mode button {
+  padding:8px 16px;
+  font-weight:600;
+  border:1px solid #d1d5db;
+  border-radius:var(--border-radius);
+  cursor:pointer;
+  background:#fff;
+  transition: all var(--transition);
+}
+
+.switch-mode button.active {
+  background: var(--primary);
+  color:#fff;
+  border-color: var(--primary);
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* CONTAINERS */
+.container {
+  background: var(--card-bg);
+  padding:20px;
+  border-radius:var(--border-radius);
+  box-shadow: var(--shadow);
+  width:90%;
+  max-width:400px;
+  text-align:center;
+  margin-bottom:25px;
+  transition: transform var(--transition);
+}
+
+.container:hover { transform: translateY(-2px); }
+
+.container label { display:block; margin-bottom:6px; font-weight:500; color:var(--text-dark); font-size:0.95rem; }
+
+.container input {
+  width:60%;
+  padding:8px;
+  margin-bottom:12px;
+  border:1px solid #d1d5db;
+  border-radius:var(--border-radius);
+  font-size:0.95rem;
+  text-align:center;
+  transition: border-color var(--transition);
+}
+
+.container input:focus { border-color: var(--primary); outline:none; }
+
+.container button {
+  width:70%;
+  padding:12px 0;
+  background: var(--primary);
+  color:#fff;
+  border-radius:var(--border-radius);
+  font-weight:600;
+  font-size:1rem;
+  border:none;
+  cursor:pointer;
+  transition: all var(--transition);
+}
+
+.container button:hover { background:#2563eb; transform:translateY(-2px); }
+
+.result {
+  margin:15px 0 10px 0; /* espace au-dessus du bouton Ajouter */
+  font-weight:500;
+  color:var(--text-dark);
+  font-size:0.95rem;
+}
+
+/* CATALOGUE CARDS */
+.catalogue-mini {
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding:6px 0;
+}
+
+.boisson {
+  flex:0 0 auto;
+  min-width:120px;
+  padding:12px 10px;
+  background:#f9fafb;
+  border-radius:var(--border-radius);
+  cursor:pointer;
+  transition: transform var(--transition), background var(--transition);
+  text-align:center;
+  font-size:0.9rem;
+}
+
+.boisson:hover { transform:translateY(-2px); background:#e5e7eb; }
+.boisson.selected { background:#d1d5db; }
+
+.favori-label { font-weight:600; color:var(--primary); margin-bottom:6px; display:block; font-size:0.85rem; }
+
+/* QUANTITY CONTROL */
+.quantity-control {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  margin-bottom:0; /* réduit l'espace pour mieux coller au label */
+}
+
+.quantity-control button {
+  width:36px; height:36px;
+  font-size:18px;
+  font-weight:bold;
+  border-radius:6px; /* coins un peu plus visibles */
+  border:1px solid #d1d5db;
+  background:#f9fafb;
+  color:var(--text-dark);
+  cursor:pointer;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  transition: all var(--transition);
+}
+
+.quantity-control button:hover {
+  background:var(--primary);
+  color:#fff;
+  transform:scale(1.1);
+}
+
+.quantity-control input {
+  width:50px;
+  text-align:center;
+  padding:6px;
+  border-radius:var(--border-radius);
+  border:1px solid #d1d5db;
+}
+
+/* micro-label optionnel */
+.nom-optionnel {
+  font-size:0.85rem;
+  color:#9ca3af;
+  margin-top:-5px;
+  margin-bottom:8px;
+  display:block;
+}
+
+/* TABLEAU */
+table {
+  width:100%;
+  max-width:400px;
+  border-collapse:collapse;
+  margin-bottom:25px;
+  font-size:0.95rem;
+}
+
+th, td {
+  border-bottom:1px solid #e5e7eb;
+  padding:6px 8px;
+  text-align:center;
+}
+
+tfoot td { font-weight:600; color:var(--text-dark); }
+
+.delete {
+  color: var(--danger);
+  cursor:pointer;
+  font-weight:bold;
+  transition: transform var(--transition);
+}
+
+.delete:hover { transform:scale(1.2); }
+
+/* NAVBAR */
+.navbar {
+  position: fixed;
+  bottom:15px;      /* plus d’espace du bas */
+  left:10px;
+  right:10px;
+  background:#fff;
+  border-radius:25px; /* coins très arrondis pour style app */
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  height:80px;        /* plus haute pour téléphone */
+  font-weight:600;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15); /* ombre plus visible */
+  padding:0 15px;
+  z-index:1000;
+}
+
+.navbar a {
+  flex:1;
+  text-decoration:none;
+  color:var(--text-light);
+  font-size:14px;
+  transition: all var(--transition);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:10px 0;
+  border-radius:15px;   /* chaque bouton a un léger arrondi */
+  margin:0 3px;
+  background:#f9fafb;  /* fond clair pour différencier chaque bouton */
+}
+
+.navbar a.active {
+  color:#fff;
+  background:var(--primary); /* bouton actif coloré */
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  transform:translateY(-3px);
+}
+
+.navbar a:hover {
+  background:#e5e7eb;
+  transform:translateY(-2px);
+}
+
+@media (max-width:380px){
+  .navbar {
+    height:85px;  /* un peu plus haute pour petits écrans */
+    padding:0 8px;
+  }
+  .navbar a {
+    font-size:13px;
+    padding:8px 0;
+  }
+}
+
+
+</style>
+</head>
+
+<body>
+
+<h1>Conso du jour (<span id="dateDuJour"></span>)</h1>
+
+<div class="date-bar">
+  <input type="date" id="dateJour">
+  <button id="btnToday">Aujourd'hui</button>
+</div>
+
+<div class="switch-mode">
+  <button id="btnCatalogue" class="active">Catalogue</button>
+  <button id="btnManuel">Manuel</button>
+</div>
+
+<div class="container" id="zoneCatalogue">
+  <span class="favori-label">⭐ Favoris</span>
+  <div id="favorisContainer" class="catalogue-mini"></div>
+  <input type="text" id="searchCatalogue" placeholder="Rechercher une boisson...">
+  <div id="resultCatalogue" class="catalogue-mini"></div>
+</div>
+
+<div class="container" id="zoneManuel" style="display:none;">
+  <label>Volume (cl)</label>
+  <input type="number" id="volume" placeholder="ex: 25">
+  <label>Degré (%)</label>
+  <input type="number" id="degree" placeholder="ex: 12">
+  <span class="nom-optionnel">Nom de la boisson (optionnel pour ajouter au catalogue)</span>
+  <input type="text" id="nomManuel" placeholder="Ex : Chardonnay">
+</div>
+
+<div class="container">
+  <label>Nombre de verres</label>
+  <div class="quantity-control">
+    <button id="moins">-</button>
+    <input type="number" id="quantite" value="1" min="1">
+    <button id="plus">+</button>
+  </div>
+  <div class="result" id="resultat">Quantité d'alcool pur : 0 g</div>
+  <button id="ajouter">Ajouter</button>
+</div>
+
+<table id="tableauConso">
+  <thead>
+    <tr>
+      <th>Volume (cl)</th>
+      <th>Degré (%)</th>
+      <th>Alcool pur (g)</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+  <tfoot>
+    <tr>
+      <td colspan="4"><strong>Total : <span id="total"></span> g</strong></td>
+    </tr>
+  </tfoot>
+</table>
+
+<div class="navbar">
+  <a href="index.html" class="active">🏠</a>
+  <a href="page2.html">Historique</a>
+  <a href="page3.html">Statistiques</a>
+  <a href="page4.html">Catalogue</a>
+  <a href="page5.html">⚙️</a>
+</div>
+
+<script>
+// Ton JS existant (inchangé)
+const dateJour = document.getElementById("dateJour");
+const btnToday = document.getElementById("btnToday");
+const dateSpan = document.getElementById("dateDuJour");
+const today = new Date().toISOString().slice(0,10);
+let dateCourante = today;
+dateJour.max = today;
+dateSpan.textContent = today;
+
+const zoneCatalogue = document.getElementById("zoneCatalogue");
+const zoneManuel = document.getElementById("zoneManuel");
+const btnCatalogue = document.getElementById("btnCatalogue");
+const btnManuel = document.getElementById("btnManuel");
+
+const favorisContainer = document.getElementById("favorisContainer");
+const searchCatalogue = document.getElementById("searchCatalogue");
+
+const nomManuel = document.getElementById("nomManuel");
+const volumeInput = document.getElementById("volume");
+const degreeInput = document.getElementById("degree");
+const quantiteInput = document.getElementById("quantite");
+const resultat = document.getElementById("resultat");
+const ajouterBtn = document.getElementById("ajouter");
+const tableauBody = document.querySelector("#tableauConso tbody");
+const totalEl = document.getElementById("total");
+const plusBtn = document.getElementById("plus");
+const moinsBtn = document.getElementById("moins");
+
+let boissons = JSON.parse(localStorage.getItem("boissons")) || [];
+let jours = JSON.parse(localStorage.getItem("jours")) || {};
+if(!jours[today]) jours[today]=[];
+
+btnCatalogue.addEventListener("click", ()=>{
+  btnCatalogue.classList.add("active");
+  btnManuel.classList.remove("active");
+  zoneCatalogue.style.display = "block";
+  zoneManuel.style.display = "none";
+});
+btnManuel.addEventListener("click", ()=>{
+  btnManuel.classList.add("active");
+  btnCatalogue.classList.remove("active");
+  zoneCatalogue.style.display = "none";
+  zoneManuel.style.display = "block";
+});
+
+function afficherCatalogueMini(filtre="") {
+  favorisContainer.innerHTML = "";
+  const resultCatalogue = document.getElementById("resultCatalogue");
+  resultCatalogue.innerHTML = "";
+
+  const favoris = boissons.filter(b => b.favori);
+  favoris.forEach(b => {
+    const div = document.createElement("div");
+    div.className="boisson";
+    div.textContent = `${b.nom} (${b.volume} cl - ${b.degre}%)`;
+    div.onclick = ()=>selectBoisson(b);
+    favorisContainer.appendChild(div);
+  });
+
+  const resultats = boissons.filter(b => b.nom.toLowerCase().includes(filtre.toLowerCase()) && !b.favori);
+  resultats.forEach(b => {
+    const div = document.createElement("div");
+    div.className="boisson";
+    div.textContent = `${b.nom} (${b.volume} cl - ${b.degre}%)`;
+    div.onclick = ()=>selectBoisson(b);
+    resultCatalogue.appendChild(div);
+  });
+}
+
+function selectBoisson(b){
+  document.querySelectorAll(".boisson").forEach(el=>el.classList.remove("selected"));
+  const elements = [...document.querySelectorAll(".boisson")];
+  const el = elements.find(e => e.textContent.includes(b.nom));
+  if(el) el.classList.add("selected");
+
+  volumeInput.value = b.volume;
+  degreeInput.value = b.degre;
+  calculer();
+}
+
+searchCatalogue.addEventListener("input", ()=>afficherCatalogueMini(searchCatalogue.value));
+afficherCatalogueMini();
+
+function calculer(){
+  const v = parseFloat(volumeInput.value);
+  const d = parseFloat(degreeInput.value);
+  const q = parseInt(quantiteInput.value);
+  if(isNaN(v)||isNaN(d)||isNaN(q)||q<1){
+    resultat.textContent = "Quantité d'alcool pur : 0 g";
+    return 0;
+  }
+  const alcool = (v*10*d*0.8)/100;
+  const totalAlcool = alcool*q;
+  resultat.textContent = `Quantité d'alcool pur : ${totalAlcool.toFixed(1)} g`;
+  return alcool;
+}
+
+volumeInput.addEventListener("input", calculer);
+degreeInput.addEventListener("input", calculer);
+quantiteInput.addEventListener("input", calculer);
+
+plusBtn.addEventListener("click", ()=>{
+  quantiteInput.value = parseInt(quantiteInput.value)+1;
+  calculer();
+});
+moinsBtn.addEventListener("click", ()=>{
+  if(parseInt(quantiteInput.value)>1) quantiteInput.value = parseInt(quantiteInput.value)-1;
+  calculer();
+});
+
+function afficherTableau(){
+  tableauBody.innerHTML = "";
+  let total = 0;
+  jours[dateCourante].forEach((c,i)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${c.volume}</td><td>${c.degree}</td><td>${c.alcoolPur.toFixed(1)}</td><td><span class="delete" data-index="${i}">✖</span></td>`;
+    tableauBody.appendChild(tr);
+    total += c.alcoolPur;
+  });
+  totalEl.textContent = total.toFixed(1);
+}
+
+function ajouter(){
+  const v = parseFloat(volumeInput.value);
+  const d = parseFloat(degreeInput.value);
+  const q = parseInt(quantiteInput.value);
+  if(isNaN(v)||isNaN(d)||isNaN(q)||q<1) return;
+
+  const alcoolPur = calculer();
+  for(let i=0;i<q;i++){
+    jours[dateCourante].push({volume:v,degree:d,alcoolPur});
+  }
+  localStorage.setItem("jours", JSON.stringify(jours));
+  afficherTableau();
+
+  const nomB = nomManuel.value.trim();
+  if(nomB){
+    const existe = boissons.some(b=>b.nom.toLowerCase()===nomB.toLowerCase());
+    if(!existe){
+      const id = Date.now();
+      boissons.push({ id, nom:nomB, volume:v, degre:d, alcoolPur, favori:false });
+      localStorage.setItem("boissons", JSON.stringify(boissons));
+      alert(`Boisson "${nomB}" ajoutée au catalogue !`);
+    }
+    nomManuel.value="";
+  }
+
+  volumeInput.value="";
+  degreeInput.value="";
+  quantiteInput.value="1";
+  resultat.textContent="Quantité d'alcool pur : 0 g";
+  afficherCatalogueMini();
+}
+
+ajouterBtn.addEventListener("click", ajouter);
+
+tableauBody.addEventListener("click",(e)=>{
+  if(e.target.classList.contains("delete")){
+    const index = e.target.dataset.index;
+    jours[dateCourante].splice(index,1);
+    localStorage.setItem("jours", JSON.stringify(jours));
+    afficherTableau();
+  }
+});
+
+dateJour.addEventListener("change", ()=>{
+  dateCourante = dateJour.value;
+  if(!jours[dateCourante]) jours[dateCourante]=[];
+  afficherTableau();
+});
+
+btnToday.addEventListener("click", ()=>{
+  dateCourante = today;
+  dateJour.value = today;
+  afficherTableau();
+});
+
+window.addEventListener("load", ()=>{
+  dateCourante = today;
+  dateJour.value = today;
+  afficherTableau();
+});
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+  .then(() => console.log('Service Worker enregistré avec succès.'))
+  .catch(error => console.log('Erreur Service Worker :', error));
+}
+  document.addEventListener('touchend', function(e) {
+    if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+      e.target.focus();
+    }
+  }, false);
+
+</script>
+
+</body>
+</html>
