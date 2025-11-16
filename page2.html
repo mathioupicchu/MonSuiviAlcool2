@@ -6,10 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Historique des consommations</title>
 
-<!-- FONT -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -169,14 +167,19 @@ tfoot td { font-weight:600; color:var(--text-dark); }
 .day:hover { transform:translateY(-2px); }
 
 .day-number { font-weight:600; font-size:14px; margin-bottom:2px; }
-
 .day-total { font-size:12px; font-weight:500; }
 
 .green { background:#b2fab4; }
 .yellow { background:#fff5b2; }
 .orange { background:#ffc27f; }
 .red { background:#ff7f7f; }
-.disabled { background:#eee; cursor:not-allowed; color:#999; }
+
+.future-day {
+  background: #fff !important;
+  color: #000;
+  cursor: default;
+  border:1px solid #ccc;
+}
 
 .legend {
   display:flex;
@@ -193,17 +196,17 @@ tfoot td { font-weight:600; color:var(--text-dark); }
 /* NAVBAR */
 .navbar {
   position: fixed;
-  bottom:15px;      /* plus d’espace du bas */
+  bottom:15px;      
   left:10px;
   right:10px;
   background:#fff;
-  border-radius:25px; /* coins très arrondis pour style app */
+  border-radius:25px; 
   display:flex;
   justify-content:space-between;
   align-items:center;
-  height:80px;        /* plus haute pour téléphone */
+  height:80px;        
   font-weight:600;
-  box-shadow:0 6px 20px rgba(0,0,0,0.15); /* ombre plus visible */
+  box-shadow:0 6px 20px rgba(0,0,0,0.15); 
   padding:0 15px;
   z-index:1000;
 }
@@ -219,14 +222,14 @@ tfoot td { font-weight:600; color:var(--text-dark); }
   align-items:center;
   justify-content:center;
   padding:10px 0;
-  border-radius:15px;   /* chaque bouton a un léger arrondi */
+  border-radius:15px;   
   margin:0 3px;
-  background:#f9fafb;  /* fond clair pour différencier chaque bouton */
+  background:#f9fafb;  
 }
 
 .navbar a.active {
   color:#fff;
-  background:var(--primary); /* bouton actif coloré */
+  background:var(--primary); 
   box-shadow:0 4px 10px rgba(0,0,0,0.2);
   transform:translateY(-3px);
 }
@@ -237,25 +240,12 @@ tfoot td { font-weight:600; color:var(--text-dark); }
 }
 
 @media (max-width:380px){
-  .navbar {
-    height:85px;  /* un peu plus haute pour petits écrans */
-    padding:0 8px;
-  }
-  .navbar a {
-    font-size:13px;
-    padding:8px 0;
-  }
-}
-
-
-@media (max-width:380px){
+  .navbar { height:85px; padding:0 8px; }
+  .navbar a { font-size:13px; padding:8px 0; }
   table { width:95%; }
   .calendar-container { width:95%; padding:12px; }
   .date-bar input, .date-bar button { font-size:14px; padding:8px; }
 }
-
-
-
 </style>
 </head>
 
@@ -273,14 +263,14 @@ tfoot td { font-weight:600; color:var(--text-dark); }
     <tr>
       <th>Volume (cl)</th>
       <th>Degré (%)</th>
-      <th>Alcool pur (g)</th>
+      <th>Alcool pur</th>
       <th></th>
     </tr>
   </thead>
   <tbody></tbody>
 </table>
 
-<div class="total" id="total">Total : 0 g</div>
+<div class="total" id="total">Total : 0</div>
 
 <div class="calendar-container">
   <div class="calendar-header">
@@ -300,14 +290,13 @@ tfoot td { font-weight:600; color:var(--text-dark); }
 
 <div class="navbar">
   <a href="index.html" >🏠</a>
-  <a href="page2.html"class="active">Historique</a>
+  <a href="page2.html" class="active">Historique</a>
   <a href="page3.html">Statistiques</a>
   <a href="page4.html">Catalogue</a>
   <a href="page5.html">⚙️</a>
 </div>
 
 <script>
-// Gestion des dates et du localStorage
 const dateSelector = document.getElementById("dateSelector");
 const btnToday = document.getElementById("btnToday");
 const tableauBody = document.querySelector("#tableau tbody");
@@ -340,7 +329,7 @@ function afficherJour(){
     tableauBody.appendChild(tr);
     total += c.alcoolPur;
   });
-  totalDiv.textContent = "Total : "+total.toFixed(1)+" g";
+  totalDiv.textContent = "Total : "+total.toFixed(1);
 }
 
 tableauBody.addEventListener("click",(e)=>{
@@ -378,8 +367,11 @@ function afficherCalendrier(mois){
   const lastDay = new Date(year, month, 0);
   const joursDansMois = lastDay.getDate();
 
-  const startDayIndex = (firstDay.getDay()+6)%7; // 0 = lundi
+  const startDayIndex = (firstDay.getDay()+6)%7; 
   const prevMonthLastDay = new Date(year, month-1, 0).getDate();
+
+  const todayDate = new Date();
+  const todayStr = todayDate.toISOString().slice(0,10);
 
   for(let i=0;i<42;i++){
     const div = document.createElement("div");
@@ -387,35 +379,43 @@ function afficherCalendrier(mois){
 
     let dayNumber,totalJour,dateStr,isCurrentMonth=true;
 
-    if(i<startDayIndex){ // jours du mois précédent
+    if(i<startDayIndex){ 
       dayNumber = prevMonthLastDay - startDayIndex + i +1;
       div.classList.add("disabled");
       isCurrentMonth=false;
       const prevMonthDate = new Date(year, month-2, dayNumber);
       dateStr = prevMonthDate.toISOString().slice(0,10);
       totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
-    } else if(i>=startDayIndex+joursDansMois){ // jours du mois suivant
+    } else if(i>=startDayIndex+joursDansMois){ 
       dayNumber = i - (startDayIndex+joursDansMois) +1;
-      div.classList.add("disabled");
+      div.classList.add("future-day"); 
       isCurrentMonth=false;
       const nextMonthDate = new Date(year, month, dayNumber);
       dateStr = nextMonthDate.toISOString().slice(0,10);
-      totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
-    } else { // jours du mois courant
+      totalJour = 0;
+    } else { 
       dayNumber = i - startDayIndex +1;
       dateStr = `${year}-${String(month).padStart(2,'0')}-${String(dayNumber).padStart(2,'0')}`;
       totalJour = jours[dateStr]? jours[dateStr].reduce((s,c)=>s+c.alcoolPur,0):0;
     }
 
-    if(!isCurrentMonth && totalJour===0) div.classList.add("disabled");
-    else if(totalJour===0) div.classList.add("green");
-    else if(totalJour<40) div.classList.add("yellow");
-    else if(totalJour<100) div.classList.add("orange");
-    else div.classList.add("red");
+    if(dateStr === todayStr){
+      div.style.border = "2px solid #2e86de";
+    }
 
-    div.innerHTML = `<div class="day-number">${dayNumber}</div><div class="day-total">${totalJour.toFixed(1)} g</div>`;
+    if(dateStr > todayStr){
+      div.classList.add("future-day");
+      div.innerHTML = `<div class="day-number">${dayNumber}</div><div class="day-total"></div>`;
+    } else {
+      if(totalJour===0) div.classList.add("green");
+      else if(totalJour<40) div.classList.add("yellow");
+      else if(totalJour<100) div.classList.add("orange");
+      else div.classList.add("red");
 
-    if(isCurrentMonth && !div.classList.contains("disabled")){
+      div.innerHTML = `<div class="day-number">${dayNumber}</div><div class="day-total">${totalJour.toFixed(1)}</div>`;
+    }
+
+    if(isCurrentMonth && !div.classList.contains("disabled") && !div.classList.contains("future-day")){
       div.addEventListener("click",()=>{
         dateCourante = dateStr;
         dateSelector.value = dateStr;
@@ -427,35 +427,11 @@ function afficherCalendrier(mois){
   }
 }
 
-// ======= SWIPE TOUCH SUPPORT =======
-let touchStartX = 0;
-let touchEndX = 0;
-
-function handleSwipe(){
-  const diff = touchEndX - touchStartX;
-  if(Math.abs(diff) > 50){
-    if(diff > 0) changerMois(-1); // swipe droite → mois précédent
-    else changerMois(1);           // swipe gauche → mois suivant
-  }
-}
-
-// Swipe sur le calendrier
-calendar.addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; });
-calendar.addEventListener("touchend", (e) => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); });
-
-// Swipe sur la barre du mois (input+label)
-document.querySelector(".calendar-header").addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; });
-document.querySelector(".calendar-header").addEventListener("touchend", (e) => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); });
-
-// ======= FIN SWIPE =======
-
 window.addEventListener("load",()=>{
   afficherJour();
   afficherCalendrier(currentMonth);
 });
 </script>
 
-
 </body>
 </html>
-
