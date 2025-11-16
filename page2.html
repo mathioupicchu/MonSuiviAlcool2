@@ -427,12 +427,35 @@ function afficherCalendrier(mois){
   }
 }
 
+// ======= SWIPE TOUCH SUPPORT =======
+let touchStartX = 0;
+let touchEndX = 0;
+
+function handleSwipe(){
+  const diff = touchEndX - touchStartX;
+  if(Math.abs(diff) > 50){
+    if(diff > 0) changerMois(-1); // swipe droite → mois précédent
+    else changerMois(1);           // swipe gauche → mois suivant
+  }
+}
+
+// Swipe sur le calendrier
+calendar.addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; });
+calendar.addEventListener("touchend", (e) => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); });
+
+// Swipe sur la barre du mois (input+label)
+document.querySelector(".calendar-header").addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].screenX; });
+document.querySelector(".calendar-header").addEventListener("touchend", (e) => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); });
+
+// ======= FIN SWIPE =======
+
 window.addEventListener("load",()=>{
   afficherJour();
   afficherCalendrier(currentMonth);
 });
-
 </script>
+
 
 </body>
 </html>
+
